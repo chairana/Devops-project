@@ -9,6 +9,7 @@ pipeline {
         ECR_REPO = '767397922470.dkr.ecr.us-east-1.amazonaws.com/nodejs-devops'
         IMAGE_TAG = "node-api-${BUILD_NUMBER}"
         AWS_REGION = 'us-east-1'
+        HOME = '/tmp'
     }
     stages {
         stage('Checkout') {
