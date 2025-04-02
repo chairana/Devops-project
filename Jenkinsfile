@@ -1,4 +1,3 @@
-
 pipeline {
     agent {
         docker {
@@ -10,8 +9,6 @@ pipeline {
         ECR_REPO = '767397922470.dkr.ecr.us-east-1.amazonaws.com/nodejs-devops'
         IMAGE_TAG = "node-api-${BUILD_NUMBER}"
         AWS_REGION = 'us-east-1'
-        AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
-        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
     }
     stages {
         stage('Checkout') {
@@ -27,10 +24,12 @@ pipeline {
         }
         stage('Push to ECR') {
             steps {
-                sh '''
-                aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
-                docker push $ECR_REPO:$IMAGE_TAG
-                '''
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+                    sh '''
+                        aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
+                        docker push $ECR_REPO:$IMAGE_TAG
+                    '''
+                }
             }
         }
     }
